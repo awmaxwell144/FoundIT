@@ -9,7 +9,9 @@ from jax import lax
 import jax.numpy as jnp
 from gymnax.environments import environment
 from gymnax.environments import spaces
-from envs.cartpole.reward import compute_reward
+import importlib
+module = importlib.import_module('envs.CartPole-v1.reward')
+compute_reward = getattr(module, "compute_reward")
 
 @struct.dataclass
 class EnvState(environment.EnvState):

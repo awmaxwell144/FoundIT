@@ -102,18 +102,19 @@ def main(env_name):
             try:
                 output = subprocess.run(['python3', 'train_model/train.py', '-env',f'{env_name}'], 
                                         check=True, text=True)
+                 # run model (it shouldnt break if there's an error here)
+                try:
+                    output = subprocess.run(['python3', 'run_visualize/run_visualize.py', '-env',f'{env_name}'], 
+                                            check=True, text=True)
+                    
+                except subprocess.CalledProcessError as e:
+                    encountered_exception = True
+                    exception = e
                 
             except subprocess.CalledProcessError as e:
                 encountered_exception = True
                 exception = e
-            # run model (it shouldnt break if there's an error here)
-            try:
-                output = subprocess.run(['python3', 'run_visualize/run_visualise.py', '-env',f'{env_name}'], 
-                                        check=True, text=True)
-                
-            except subprocess.CalledProcessError as e:
-                encountered_exception = True
-                exception = e
+           
             # store model information
 
         # Reward reflection
@@ -141,7 +142,7 @@ if __name__ == "__main__":
         "-env",
         "--env_name",
         type=str,
-        default="cartpole",
+        default="CartPole-v1",
         help="Environment name.",
     )
     args, _ = parser.parse_known_args()

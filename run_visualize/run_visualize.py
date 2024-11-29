@@ -61,7 +61,7 @@ if __name__ == "__main__":
         "-env",
         "--env_name",
         type=str,
-        default="cartpole",
+        default="CartPole-v1",
         help="Environment name.",
     )
     parser.add_argument( # specify the output directory

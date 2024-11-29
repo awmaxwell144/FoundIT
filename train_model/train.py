@@ -9,7 +9,7 @@ from datetime import datetime
 from mle_toolbox import MLExperiment
 
 
-def main(env, config, mle_log):
+def main(config, mle_log):
     """Run training with ES or PPO. Store logs and agent ckpt."""
     rng = jax.random.PRNGKey(config.seed_id)
     # Setup the model architecture
@@ -20,7 +20,7 @@ def main(env, config, mle_log):
 
     # Log and store the results.
     log_steps, log_return, network_ckpt = train_fn(
-        rng, config, model, params, mle_log
+         rng, config, model, params, mle_log
     )
 
     data_to_store = {
@@ -32,7 +32,7 @@ def main(env, config, mle_log):
 
     save_pkl_object(
         data_to_store,
-        f"envs/{env}/ppo.pkl",
+        f"envs/{config.env_name}/ppo.pkl",
     )
 
 
@@ -44,7 +44,7 @@ if __name__ == "__main__":
         "-env",
         "--env_name",
         type=str,
-        default="cartpole",
+        default="CartPole-v1",
         help="Environment name",
     )
     args, _ = parser.parse_known_args()
@@ -60,7 +60,7 @@ if __name__ == "__main__":
                 }
         
     mle = MLExperiment(config_fname=f'envs/{args.env_name}/ppo.yaml', log_config=log_config)
-    main(args.env_name, mle.train_config, mle_log=mle.log)
+    main(mle.train_config, mle_log=mle.log)
     print("Completed")
 
 

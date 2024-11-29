@@ -1,7 +1,6 @@
 from functools import partial
 import optax
 import jax
-import logging
 import jax.numpy as jnp
 from typing import Any, Callable, Tuple
 from collections import defaultdict
@@ -9,26 +8,8 @@ import flax
 from flax.training.train_state import TrainState
 import numpy as np
 import tqdm
-# import gymnax
-
-
-import os
-import sys
-
-# Get the directory of the current module
-module_directory = os.path.abspath(os.path.dirname(__file__))
-
-# Go one directory up from the module's directory
-parent_directory = os.path.abspath(os.path.join(module_directory, os.pardir))
-
-# Go one more directory up from the module's directory
-parent_directory = os.path.abspath(os.path.join(parent_directory, os.pardir))
-
-# Add the parent directory to sys.path
-sys.path.append(parent_directory)
-
-import envs.cartpole.cartpole as env
-
+#import gymnax
+from utils.make import make
 
 
 class BatchManager:
@@ -126,16 +107,9 @@ class BatchManager:
 
 class RolloutManager(object):
     def __init__(self, model, env_name, env_kwargs, env_params):
-        current_directory = os.path.abspath(os.path.dirname(__file__))
-        parent_directory = os.path.abspath(os.path.join(current_directory, os.pardir))
-
         # Setup functionalities for vectorized batch rollout
         self.env_name = env_name
-
-        # self.env, self.env_params = gymnax.make(env_name, **env_kwargs)
-        self.env = env.CartPole(**env_kwargs)
-        self.env_params = self.env.default_params
-
+        self.env, self.env_params = make(env_name, **env_kwargs)
         self.env_params = self.env_params.replace(**env_params)
         self.observation_space = self.env.observation_space(self.env_params)
         self.action_size = self.env.action_space(self.env_params).shape
