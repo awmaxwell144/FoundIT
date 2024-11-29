@@ -1,9 +1,10 @@
 The output of the reward function should consist of one item:
     (1) the total reward
 The code output should be formatted as a python code string: "```python ... ```".
-Before "def compute_reward()" add import statements for any python libraries other than the standard library (including `import jax.numpy as jnp` if jnp is used)
+Before "def compute_reward(...)" add import statements for any python libraries other than the standard library (including `import jax.numpy as jnp` if jnp is used).
+Do not import the environment code.
 
-The reward function will be imported from another file to the environment file. 
+The reward function will be imported from another file to the environment file. The only variables that can be referenced in compute_reward(...) are those passed in as arguments and those defined in compute_reward()
 
 Some helpful tips for writing the reward function code:
     (1) You may find it helpful to normalize the reward to a fixed range 

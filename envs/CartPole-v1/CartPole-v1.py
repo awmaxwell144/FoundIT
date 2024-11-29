@@ -86,7 +86,7 @@ class CartPole(environment.Environment[EnvState, EnvParams]):
         # reward = calc_reward(prev_terminal)
 
         
-        reward = compute_reward(self, state)
+        reward = compute_reward(state)
 
         # Update state dict and evaluate termination conditions
         state = EnvState(

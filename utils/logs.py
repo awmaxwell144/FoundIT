@@ -41,6 +41,7 @@ def log_reward_info(reward_info):
         file.write(str(reward_info["reward_seq"]))
         file.write("\nTask Fitness Function Output: ")
         file.write(str(reward_info["eval"]))
+        file.write("\n" + str(reward_info["state_seq"]))
         file.write("\nException: ")
         file.write(str(reward_info["exception"]))
         file.write("\n\n\n\n")

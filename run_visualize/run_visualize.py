@@ -27,8 +27,8 @@ def run(env_name):
     state_seq, cum_rewards, reward_seq = rollout_episode(# call rollout_episode function to simulate an episode
         env, env_params, model, model_params
     )
-    
-    print(f'rewards {cum_rewards} duration {len(reward_seq)}')
+
+    print(f'rewards {cum_rewards} duration {len(reward_seq)} state_seq {state_seq}')
 
 def run_animate(env_name):
 
@@ -65,7 +65,8 @@ if __name__ == "__main__":
         help="Environment name.",
     )
     parser.add_argument( # specify the output directory
-        "-animate",
+        "-a",
+        "--animate",
         type=bool,
         default=False,
         help="True: run and animate, False: just run.",

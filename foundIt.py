@@ -96,8 +96,9 @@ def main(env_name):
         for r in responses:
             logging.info(f'Evaluate {reward_num}')
             encountered_exception = False
-            exception = ""
+            exception = "None"
             reward_seq = []
+            state_seq = ""
             duration = 0
             # add generated reward function to environment code 
             write_to_py(reward_location, r)
@@ -106,7 +107,7 @@ def main(env_name):
             try:
                 logging.info(f'Training model')
                 train_output = subprocess.run(['python3', 'train_model/train.py', '-env',f'{env_name}'], 
-                                          check=True, text=True)
+                                          capture_output=True, check=True, text=True)
                 logging.info("Training complete")
                  # run model (it shouldnt break if there's an error here)
                 try:
@@ -114,7 +115,7 @@ def main(env_name):
                     run_output = subprocess.run(['python3', 'run_visualize/run_visualize.py', '-env',f'{env_name}'], 
                                             capture_output=True, check=True, text=True)
                     logging.info("Run Complete")
-                    reward_seq, duration = process_run(run_output.stdout)
+                    reward_seq, duration, state_seq = process_run(run_output.stdout)
                 except subprocess.CalledProcessError as e:
                     logging.info("Exception occurred when running the model, moving to next reward")
                     encountered_exception = True
@@ -138,6 +139,7 @@ def main(env_name):
                 "reward_seq": reward_seq,
                 "duration": duration,
                 "eval": eval,
+                "state_seq": state_seq,
                 "exception": exception
             }
             reward_log(reward_info["reward_function"])
@@ -147,20 +149,65 @@ def main(env_name):
             reward_num+=1
 
 
-        # Reward reflection
-
+        # if it's not the last iteration 
+        if (iter < (iterations - 1)):
+            # Reward reflection
             # if all generate execution errors
-                # break forward to the next iteration with the same messages
-            # if its not all of them
-                # evaluate the ones that don't generate execution errors
-                # choose the *best* one
-                # record stats about *best* reward
-                # record general stats abt every reward
+            if all(exceptions):
+                # choose the first reward to move forward with
+                reward_info = reward_info_all[0]
+                executing_error = executing_error_feedback.format(reward_func = reward_info["reward_function"], initial_user = initial_user, traceback_msg = reward_info["exception"])
+                messages = [{"role": "system", "content": initial_system}, {"role": "user", "content": executing_error}]
+                continue #should skip to next iteration of outer loop
+
+            # if some execute
+            else:
+                best_eval = 0
+                best_reward = {}
+                # choose the *best* reward function based on task fitness function output
+                for reward_info in reward_info_all:
+                    if (reward_info["eval"] > best_eval):
+                        best_eval = reward_info["eval"]
+                        # record stats about *best* reward
+                        best_reward = reward_info
+                
                 # update the messages
+                feedback = policy_feedback.format(reward_function = best_reward["reward_function"],
+                                            reward = best_reward["reward_seq"],
+                                            duration = best_reward["duration"])
+                user = feedback + code_feedback + initial_user
+                messages = [{"role": "system", "content": initial_system}, {"role": "user", "content": user}]
 
-    # write something to note if none of the iterations generate something executable
 
-    # evaluate performance over iterations
+    # choose the best reward function, write it to final_reward, run, and animate
+    # if all generate execution errors
+    if all(exceptions):
+        # choose the first reward to move forward with
+        best_reward = reward_info_all[0]
+        write_to_py(f'output/final_reward.py', best_reward["reward_function"])
+        logging.warning("The final reward function does not execute.")
+        all_log(best_reward, "Final Reward Function (does not execute)", type = "reward_info")
+    else:
+        best_eval = 0
+        best_reward = {}
+        # choose the *best* reward function based on task fitness function output
+        for reward_info in reward_info_all:
+            if (reward_info["eval"] > best_eval):
+                best_eval = reward_info["eval"]
+                best_reward = reward_info
+
+        # record stats about *best* reward
+        all_log("Final Reward Information")
+        all_log(best_reward, type = "reward_info")
+        reward_log(best_reward["reward_function"], "Final Reward Function")
+        write_to_py(f'output/final_reward.py', best_reward["reward_function"])
+        try:
+            logging.info('Run and animate final')
+            run_output = subprocess.run(['python3', 'run_visualize/run_visualize.py', '-env',f'{env_name}', '-a', 'True'], 
+                                    capture_output=True, check=True, text=True)
+            logging.info("Run and animate complete")
+        except subprocess.CalledProcessError as e:
+            logging.info("Exception occurred when running and animating the model")
 
 
 
