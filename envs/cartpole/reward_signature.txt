@@ -1,0 +1,3 @@
+def compute_reward(self, state) -> float:
+
+    return reward
