@@ -2,7 +2,6 @@
 
 from typing import Any, Dict, Optional, Tuple, Union
 
-
 import chex
 from flax import struct
 import jax
@@ -81,8 +80,8 @@ class CartPole(environment.Environment[EnvState, EnvParams]):
         theta_dot = state.theta_dot + params.tau * thetaacc
 
         # Important: Reward is based on termination is previous step transition
-        # reward = 1.0 - prev_terminal
-        #reward = calc_reward(prev_terminal)
+        #reward = 1.0 - prev_terminal
+        # reward = calc_reward(prev_terminal)
 
         
         reward = compute_reward(self, state)

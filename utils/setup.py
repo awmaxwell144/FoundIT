@@ -8,6 +8,7 @@ ROOT_DIR = os.getcwd()
 
 def setup(env_name):
     copy_task_fitness(env_name)
+    copy_animate(env_name)
     clear_logs()
     
     # run checks on ollama
@@ -25,6 +26,17 @@ def copy_task_fitness(env_name):
     # Open the output file in write mode and write the content
     with open(output_tff, 'w') as output_file:
         output_file.write(tff)
+
+def copy_animate(env_name):
+    env_animate = f'{ROOT_DIR}/envs/{env_name}/animate.py'
+    output_animate = f'{ROOT_DIR}/run_visualize/animate.py'
+    # Open the input file in read mode
+    with open(env_animate, 'r') as input_file:
+        animate = input_file.read()  # Read the content
+    
+    # Open the output file in write mode and write the content
+    with open(output_animate, 'w') as output_file:
+        output_file.write(animate)
 
 
 def clear_logs():

@@ -27,3 +27,7 @@ def read_config(task_name):
 def file_to_string(filename):
     with open(filename, 'r') as file:
         return file.read()
+    
+def write_to_py(output_file, code):
+    with open(output_file, 'w') as py_file:
+            py_file.writelines(code)

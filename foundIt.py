@@ -3,7 +3,8 @@ import sys
 import ollama
 import logging
 import argparse
-from utils.helpers import read_config, file_to_string
+import subprocess
+from utils.helpers import read_config, file_to_string, write_to_py
 from utils.setup import setup
 from utils.logs import all_log, reward_log
 from generate_reward.tools.rewards import format_reward
@@ -13,7 +14,7 @@ ROOT_DIR = os.getcwd()
 
 # Main
 def main(env_name):
-    logging.basicConfig(level = logging.DEBUG)
+    logging.basicConfig(level = logging.INFO)
     
     # load config info
     logging.debug("Load config")
@@ -80,17 +81,39 @@ def main(env_name):
 
             # format generated response
             reward = format_reward(cur_response)
-            reward_log(reward, f'Reward Number {num_samples}')
+            reward_log(reward, f'Reward Number {num_samples}:')
             # add generated response to whatever is storing responses
             responses.append(reward)
 
 
+        reward_info_all = []
+        exceptions = []
+        reward_location = f'envs/{env_name}/reward.py'
         # for each reward function
-            # process generated response
-            # append proccessed reward function to some way of storing
+        for r in responses:
+            encountered_exception = False
+            exception = ""
+            reward = 0
+            duration = 0
             # add generated reward function to environment code 
+            write_to_py(reward_location, r)
+
             # train model (it shouldnt break if there's an error here)
+            try:
+                output = subprocess.run(['python3', 'train_model/train.py', '-env',f'{env_name}'], 
+                                        check=True, text=True)
+                
+            except subprocess.CalledProcessError as e:
+                encountered_exception = True
+                exception = e
             # run model (it shouldnt break if there's an error here)
+            try:
+                output = subprocess.run(['python3', 'train_model/train.py', '-env',f'{env_name}'], 
+                                        check=True, text=True)
+                
+            except subprocess.CalledProcessError as e:
+                encountered_exception = True
+                exception = e
             # store model information
 
         # Reward reflection
