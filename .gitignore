@@ -1,0 +1,30 @@
+# ignore ALL .log files
+*.log
+
+# ignore all wandb files
+*wandb*
+
+# ignore __pycache__
+*__pycache__*
+
+# ignore all /output/ 
+*/output/
+output/
+
+# ignore .pkl files
+*.pkl
+
+# ignore things in gymnax-train/experiments/ppo/logs/
+gymnax-train/experiments/ppo/logs/
+
+
+# ignore .DS_Store
+*.DS_Store
+
+
+# ignore the generated reward functions
+/envs/cartpole/reward.py
+
+experiments/
+
+/evaluate/tff.py
