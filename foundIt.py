@@ -108,7 +108,7 @@ def main(env_name):
                 exception = e
             # run model (it shouldnt break if there's an error here)
             try:
-                output = subprocess.run(['python3', 'train_model/train.py', '-env',f'{env_name}'], 
+                output = subprocess.run(['python3', 'run_visualize/run_visualise.py', '-env',f'{env_name}'], 
                                         check=True, text=True)
                 
             except subprocess.CalledProcessError as e:

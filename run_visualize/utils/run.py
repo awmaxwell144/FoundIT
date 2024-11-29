@@ -1,9 +1,8 @@
 import numpy as np
 import jax
-import os
-from run_visualize.utils.models import get_model_ready
-from run_visualize.utils.helpers import load_pkl_object
-import matplotlib.pyplot as plt
+from utils.models import get_model_ready
+from utils.helpers import load_pkl_object
+
 
 
 # initializes the model using a random key 'rng'

@@ -3,6 +3,7 @@ import argparse
 import os
 from utils.helpers import  load_config
 from utils.run import rollout_episode, load_neural_network
+from animate import animate
 
 ROOT_DIR = os.getcwd()
 
@@ -30,17 +31,6 @@ def run(env_name):
     return  cum_rewards, len(reward_seq)
 
 def run_animate(env_name):
-    env_animate = f'{ROOT_DIR}/envs/{env_name}/animate.py'
-    output_animate = f'{ROOT_DIR}/run_visualize/scripts/animate.py'
-    # Open the input file in read mode
-    with open(env_animate, 'r') as input_file:
-        animate = input_file.read()  # Read the content
-    
-    # Open the output file in write mode and write the content
-    with open(output_animate, 'w') as output_file:
-        output_file.write(animate)
-
-    from scripts.animate import animate
 
     base = f"envs/{env_name}/ppo"
     configs = load_config(base + ".yaml") # load the config file for the specified environment
@@ -65,7 +55,6 @@ def run_animate(env_name):
     animate(state_seq, f'output/{env_name}_test.mp4')
 
 if __name__ == "__main__":
-    from envs.cartpole.animate import animate
     parser = argparse.ArgumentParser() 
     # define command line arguments
     parser.add_argument( # specify the environment name
