@@ -10,6 +10,8 @@ def setup(env_name):
     copy_task_fitness(env_name)
     copy_animate(env_name)
     clear_logs()
+    # Suppress httpx logging
+    logging.getLogger("httpx").setLevel(logging.WARNING)
     
     # run checks on ollama
     is_ollama_running()

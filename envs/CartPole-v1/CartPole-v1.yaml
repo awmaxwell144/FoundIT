@@ -1,5 +1,5 @@
 task: Cartpole-v1
 env_name: CartPole-v1
 description: to balance a pole on a cart so that the pole stays upright
-iterations: 2
-samples: 2
+iterations: 4
+samples: 3

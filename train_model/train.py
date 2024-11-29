@@ -1,6 +1,8 @@
 import os
 os.environ["TF_CUDNN_DETERMINISTIC"] = "1"
 os.environ['JAX_TRACEBACK_FILTERING'] = 'off'
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
+
 import jax
 from utils.models import get_model_ready
 from utils.helpers import load_config, save_pkl_object
