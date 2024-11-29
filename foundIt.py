@@ -173,8 +173,10 @@ def main(env_name):
                 
                 # update the messages
                 feedback = policy_feedback.format(reward_function = best_reward["reward_function"],
-                                            reward = best_reward["reward_seq"],
-                                            duration = best_reward["duration"])
+                                            eval = best_reward["eval"],
+                                            duration = best_reward["duration"],
+                                            state_seq = best_reward["state_seq"],
+                                            reward = best_reward["reward_seq"])
                 user = feedback + code_feedback + initial_user
                 messages = [{"role": "system", "content": initial_system}, {"role": "user", "content": user}]
 

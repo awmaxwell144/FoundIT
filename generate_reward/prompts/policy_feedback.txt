@@ -1,5 +1,7 @@
 We trained a RL policy using the provided reward function code and tracked the values of the 
 individual components in the reward function as well as global policy metrics such as success rates and episode lengths.
 Reward function: {reward_function}
-Cumulative reward: {reward}
+Task fitness score: {eval}
 Duration: {duration}
+State sequence with task fitness scores: {state_seq}
+Reward sequence: {reward}
