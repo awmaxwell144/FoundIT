@@ -1,2 +1,2 @@
-def tff(state_seq, reward, reward_seq, duration):
+def tff( reward, duration):
     return duration

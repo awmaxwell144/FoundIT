@@ -1,29 +1,16 @@
 import jax.numpy as jnp
 
 def compute_reward(self, state):
+    # Reward is 1 if the pole is still upright and -1 otherwise
     theta = state.theta
-    theta_threshold = self.params.theta_threshold_radians
+    theta_threshold_radians = self.params.theta_threshold_radians
     
-    # Penalize if the pole is pointing down or has a large angle
-    reward_down = -jnp.abs(theta)
+    # We use a sigmoid function to interpolate between rewards of -1 and 0
+    # The temperature parameter controls how quickly we reach 0 reward from -1
+    temp = 10.0  # Temperature parameter
+    reward = jnp.where(
+        jnp.abs(theta) <= theta_threshold_radians, 
+        1.0 / (1 + jnp.exp(-(jnp.abs(theta)) / temp)), 
+        -1.0)
     
-    # Penalize if the pole is too far away from the cart
-    x = state.x
-    x_threshold = 2 * self.params.x_threshold
-    reward_away = -jnp.abs(x) / x_threshold
-    
-    # Reward for keeping the pole upright and close to the cart
-    reward_upright = jnp.cos(theta)
-    
-    # Combine rewards with different weights
-    weight_down = 0.5
-    weight_away = 0.2
-    weight_upright = 0.3
-    
-    return weight_down * reward_down + weight_away * reward_away + weight_upright * reward_upright
-
-class CartPoleEnvironment:
-    def __init__(self, params):
-        self.params = params
-        
-    # ... other methods ...
+    return reward

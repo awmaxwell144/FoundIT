@@ -4,7 +4,7 @@ import ollama
 import logging
 import argparse
 import subprocess
-from utils.helpers import read_config, file_to_string, write_to_py
+from utils.helpers import read_config, file_to_string, write_to_py, process_run, process_error
 from utils.setup import setup
 from utils.logs import all_log, reward_log
 from generate_reward.tools.rewards import format_reward
@@ -53,9 +53,9 @@ def main(env_name):
         num_samples = 0
 
         # logging
-        logging.info(f'\n\n Iteration: {iter}')
-        reward_log(f"Iteration: {iter}")
-        all_log(f"Iteration: {iter}")
+        logging.info(f'\n\n Iteration: {iter+1}')
+        reward_log(f"Iteration: {iter+1}")
+        all_log(f"Iteration: {iter+1}")
 
         # while true (for each sample in the iteration)
         # while true (for each sample in the iteration)
@@ -64,7 +64,7 @@ def main(env_name):
             if (num_samples >= samples): break
 
             try:
-                logging.info(f'Generating reward number {num_samples}')
+                logging.info(f'Generating reward number {num_samples+1}')
                 # generate response given messages
                 cur_response = ollama.chat(model = "llama3.1",
                                messages = messages)['message']['content']
@@ -81,43 +81,74 @@ def main(env_name):
 
             # format generated response
             reward = format_reward(cur_response)
-            reward_log(reward, f'Reward Number {num_samples}:')
+            reward_log(reward, f'Reward Number {num_samples+1}:')
             # add generated response to whatever is storing responses
             responses.append(reward)
+
 
 
         reward_info_all = []
         exceptions = []
         reward_location = f'envs/{env_name}/reward.py'
+        reward_num = 1 # for log purposes
+        from evaluate.tff import tff
         # for each reward function
         for r in responses:
+            logging.info(f'Evaluate {reward_num}')
             encountered_exception = False
             exception = ""
-            reward = 0
+            reward_seq = []
             duration = 0
             # add generated reward function to environment code 
             write_to_py(reward_location, r)
 
             # train model (it shouldnt break if there's an error here)
             try:
-                output = subprocess.run(['python3', 'train_model/train.py', '-env',f'{env_name}'], 
-                                        check=True, text=True)
+                logging.info(f'Training model')
+                train_output = subprocess.run(['python3', 'train_model/train.py', '-env',f'{env_name}'], 
+                                          check=True, text=True)
+                logging.info("Training complete")
                  # run model (it shouldnt break if there's an error here)
                 try:
-                    output = subprocess.run(['python3', 'run_visualize/run_visualize.py', '-env',f'{env_name}'], 
-                                            check=True, text=True)
-                    
+                    logging.info('Running model')
+                    run_output = subprocess.run(['python3', 'run_visualize/run_visualize.py', '-env',f'{env_name}'], 
+                                            capture_output=True, check=True, text=True)
+                    logging.info("Run Complete")
+                    reward_seq, duration = process_run(run_output.stdout)
                 except subprocess.CalledProcessError as e:
+                    logging.info("Exception occurred when running the model, moving to next reward")
                     encountered_exception = True
-                    exception = e
+                    exception = process_error(e.stderr)
                 
             except subprocess.CalledProcessError as e:
+                logging.info("Exception occurred when training model, moving to next reward")
                 encountered_exception = True
-                exception = e
+                exception = process_error(e.stderr)
            
-            # store model information
+            # evaluate with provided task fitness function
+            if not encountered_exception:
+                eval = tff(reward_seq, duration)
+            else:
+                eval = 0
+
+            
+            # store run and model information
+            reward_info = {
+                "reward_function": r,
+                "reward_seq": reward_seq,
+                "duration": duration,
+                "eval": eval,
+                "exception": exception
+            }
+            reward_log(reward_info["reward_function"])
+            all_log(reward_info, f'Reward {reward_num} Information: ', type = "reward_info")
+            reward_info_all.append(reward_info)
+            exceptions.append(encountered_exception)
+            reward_num+=1
+
 
         # Reward reflection
+
             # if all generate execution errors
                 # break forward to the next iteration with the same messages
             # if its not all of them

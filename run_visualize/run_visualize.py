@@ -28,7 +28,7 @@ def run(env_name):
         env, env_params, model, model_params
     )
     
-    return  cum_rewards, len(reward_seq)
+    print(f'rewards {cum_rewards} duration {len(reward_seq)}')
 
 def run_animate(env_name):
 
