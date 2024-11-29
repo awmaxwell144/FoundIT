@@ -23,3 +23,7 @@ def read_config(task_name):
     iterations = cfg["iterations"]
     samples = cfg["samples"]
     return env_name, task_description, task, iterations, samples
+
+def file_to_string(filename):
+    with open(filename, 'r') as file:
+        return file.read()

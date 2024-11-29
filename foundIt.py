@@ -1,10 +1,12 @@
 import os
 import sys
+import ollama
 import logging
 import argparse
+from utils.helpers import read_config, file_to_string
 from utils.setup import setup
-from utils.helpers import file_to_string, read_config
 from utils.logs import all_log, reward_log
+from generate_reward.tools.rewards import format_reward
 
 
 ROOT_DIR = os.getcwd()
@@ -55,13 +57,33 @@ def main(env_name):
         all_log(f"Iteration: {iter}")
 
         # while true (for each sample in the iteration)
+        # while true (for each sample in the iteration)
+        while (True):
             # if you have enough samples, break
-            # try:
+            if (num_samples >= samples): break
+
+            try:
+                logging.info(f'Generating reward number {num_samples}')
                 # generate response given messages
-            # except Exception as e:
+                cur_response = ollama.chat(model = "llama3.1",
+                               messages = messages)['message']['content']
+                
+                num_samples+=1
+            except Exception as e:
                 # log the error
+                logging.warning(f'Reward generation attempt failed with error: {e}')
                 # exit()
+                exit()
+            if (cur_response == None): 
+                logging.warning('Code terminated due to failed attempt')
+                exit()
+
+            # format generated response
+            reward = format_reward(cur_response)
+            reward_log(reward, f'Reward Number {num_samples}')
             # add generated response to whatever is storing responses
+            responses.append(reward)
+
 
         # for each reward function
             # process generated response
