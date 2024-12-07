@@ -1,0 +1,6 @@
+"""state has the following aspects: x: jnp.ndarray
+    theta: jnp.ndarray
+    theta_dot: jnp.ndarray
+    time: int"""
+def compute_reward(state) -> float:
+return reward
