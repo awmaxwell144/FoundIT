@@ -2,4 +2,4 @@
 The above reward function was generated given the following prompt: {initial_user}.
 
 Executing the reward function code in the environment has the following error: {traceback_msg}. 
-Please fix the bug and provide a new, improved reward function!
+Please analyze the error, and write a new reward function that does not have that error.

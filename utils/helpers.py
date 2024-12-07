@@ -38,7 +38,6 @@ def process_run(input_string):
      # Regular expression to find the list between 'rewards' and 'duration'
     rewards_pattern = r"rewards\s*\[\s*(.*?)\s*\]\s*duration"
     duration_pattern = r"duration\s*(\d+)\s*"
-    
 
     # Extract rewards list
     rewards_match = re.search(rewards_pattern, input_string, flags=re.DOTALL)
@@ -56,7 +55,12 @@ def process_run(input_string):
     else:
         duration = None
 
-    state_seq = process_state_seq(input_string, duration)
+    state_seq_pattern = r"state_seq\s*(.*)"
+    state_seq_match = re.search(state_seq_pattern, input_string, flags=re.DOTALL)
+    if state_seq_match:
+        state_seq = state_seq_match.group(1).strip()  # Extract and strip leading/trailing whitespace
+    else:
+        state_seq = ""
 
     return reward_seq, duration, state_seq
 
@@ -78,26 +82,47 @@ def process_error(input_string):
         return input_string
 
 
-def process_state_seq(input_string, duration):
-    state_seq_pattern = r"state_seq\s*(.*)"
-    state_seq_match = re.search(state_seq_pattern, input_string, flags=re.DOTALL)
-    if state_seq_match:
-        state_seq_str = state_seq_match.group(1).strip()  # Extract and strip leading/trailing whitespace
-        # using eval because I directly producing and passing in the input
+def final_state(state_seq_str):
+    if (state_seq_str != ""):
         state_seq_all = eval(state_seq_str)
-        state_seq = reformat_state_seq(state_seq_all, duration)
+        final_obj = state_seq_all[-1]
+        final_state = "Final state: \n"
+        final_state= final_state + "\n\nTime: " + str(final_obj.time)
+        final_state= final_state + "\nx: " + str(final_obj.x)
+        final_state= final_state + "\nx_dot: " + str(final_obj.x_dot)
+        final_state= final_state + "\ntheta: " + str(final_obj.theta)
+        final_state= final_state + "\ntheta_dot: " + str(final_obj.theta_dot)
+
+    else:
+        final_state = ""
+
+    return final_state
+
+def process_state_seq(state_seq_str):
+    if (state_seq_str != ""):
+        state_seq_all = eval(state_seq_str)
+        state_seq = reformat_state_seq(state_seq_all)
 
     else:
         state_seq = ""
+
     return state_seq
-    
-def reformat_state_seq(state_seq, duration):
+
+def extract_envState(state_seq):
+    # Use a regular expression to find all matches
+    pattern = r"EnvState\((.*?)\),"
+    matches = re.findall(pattern, state_seq)
+    return matches    
+
+
+def reformat_state_seq(state_seq):
     counter = 0
+    duration = len(state_seq)
     if (duration <= 15): spread = 2
     elif (duration < 50): spread = 5
     else: spread = 10
 
-    output = f'\nEvery {spread} state sequence(s): '
+    output = f'\nEvery {spread} state sequence(s) and task fitness score: '
     for state in state_seq:
         if (counter % spread == 0):
             output= output + "\n\nTime: " + str(state.time)
@@ -108,6 +133,8 @@ def reformat_state_seq(state_seq, duration):
         counter+=1
     output+= "\n\n"
     return output
+
+
 # Define placeholder functions/classes
 class EnvState:
     def __init__(self, time, x, x_dot, theta, theta_dot):

@@ -100,6 +100,8 @@ def main(env_name):
             reward_seq = []
             state_seq = ""
             duration = 0
+            final_reward = 0
+            final_state = ""
             # add generated reward function to environment code 
             write_to_py(reward_location, r)
 

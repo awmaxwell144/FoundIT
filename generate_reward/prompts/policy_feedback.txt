@@ -3,5 +3,7 @@ individual components in the reward function as well as global policy metrics su
 Reward function: {reward_function}
 Task fitness score: {eval}
 Duration: {duration}
-State sequence with task fitness scores: {state_seq}
-Reward sequence: {reward}
+Final reward: {final_reward}
+Final state: {final_state}
+Sample of reward sequence: {reward_seq}
+Sample of state sequence: {state_seq}
