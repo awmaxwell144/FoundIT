@@ -1,0 +1,5 @@
+task: MountainCar-v0
+env_name: MountainCar-v0
+description: to strategically accelerate the car to reach the goal state on top of the right hill
+iterations: 5
+samples: 10

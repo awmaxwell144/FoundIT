@@ -1,0 +1,5 @@
+"""state has the following aspects: position: jnp.ndarray
+    velocity: jnp.ndarray
+    time: int"""
+def compute_reward(state) -> float:
+return reward
