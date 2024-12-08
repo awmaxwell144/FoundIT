@@ -40,7 +40,6 @@ def main(env_name):
     # concatenate prompts into initial messages
     initial_system = initial_system.format(task_reward_signature_string=reward_signature) + code_output_tip
     initial_user = initial_user.format(task_obs_code_string=task_obs_code_string, task_description=task_description)
-    messages = [{"role": "system", "content": initial_system}, {"role": "user", "content": initial_user}]
 
     # define variables for loop
     responses = []
@@ -62,6 +61,8 @@ def main(env_name):
         while (True):
             # if you have enough samples, break
             if (num_samples >= samples): break
+
+            messages = [{"role": "system", "content": initial_system}, {"role": "user", "content": initial_user}]
 
             try:
                 logging.info(f'Generating reward number {num_samples+1}')
@@ -117,7 +118,7 @@ def main(env_name):
                     run_output = subprocess.run(['python3', 'run_visualize/run_visualize.py', '-env',f'{env_name}'], 
                                             capture_output=True, check=True, text=True)
                     logging.info("Run Complete")
-                    reward_seq, duration, state_seq = process_run(run_output.stdout)
+                    reward_seq, final_reward, duration, state_seq, final_state = process_run(run_output.stdout)
                 except subprocess.CalledProcessError as e:
                     logging.info("Exception occurred when running the model, moving to next reward")
                     encountered_exception = True
@@ -127,23 +128,26 @@ def main(env_name):
                 logging.info("Exception occurred when training model, moving to next reward")
                 encountered_exception = True
                 exception = process_error(e.stderr)
-           
-            # evaluate with provided task fitness function
-            if not encountered_exception:
-                eval = tff(reward_seq, duration)
-            else:
-                eval = 0
 
-            
             # store run and model information
             reward_info = {
                 "reward_function": r,
                 "reward_seq": reward_seq,
+                "final_reward": final_reward,
                 "duration": duration,
                 "eval": eval,
                 "state_seq": state_seq,
-                "exception": exception
+                "final_state":final_state,
+                "exception": exception,
             }
+
+            # evaluate with provided task fitness function
+            if not encountered_exception:
+                eval = tff(reward_info)
+            else:
+                eval = 0
+
+            
             reward_log(reward_info["reward_function"])
             all_log(reward_info, f'Reward {reward_num} Information: ', type = "reward_info")
             reward_info_all.append(reward_info)
@@ -159,7 +163,7 @@ def main(env_name):
                 # choose the first reward to move forward with
                 reward_info = reward_info_all[0]
                 executing_error = executing_error_feedback.format(reward_func = reward_info["reward_function"], initial_user = initial_user, traceback_msg = reward_info["exception"])
-                messages = [{"role": "system", "content": initial_system}, {"role": "user", "content": executing_error}]
+                user = executing_error
                 continue #should skip to next iteration of outer loop
 
             # if some execute
@@ -180,7 +184,6 @@ def main(env_name):
                                             state_seq = best_reward["state_seq"],
                                             reward = best_reward["reward_seq"])
                 user = feedback + code_feedback + initial_user
-                messages = [{"role": "system", "content": initial_system}, {"role": "user", "content": user}]
 
 
     # choose the best reward function, write it to final_reward, run, and animate

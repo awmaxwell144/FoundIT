@@ -1,2 +1,2 @@
-def tff( reward, duration):
-    return duration
+def tff( reward_info):
+    return reward_info["duration"]
