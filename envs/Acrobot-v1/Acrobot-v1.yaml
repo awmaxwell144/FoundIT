@@ -1,0 +1,6 @@
+# description source: https://www.gymlibrary.dev/environments/classic_control/acrobot/
+task: Acrobot-v1
+env_name: Acrobot-v1
+description: to apply torque on the actuated joint to swing the free end of the linear chain above a given height while starting from the initial state of hanging downwards
+iterations: 5
+samples: 16

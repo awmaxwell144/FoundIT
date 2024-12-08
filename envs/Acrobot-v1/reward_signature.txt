@@ -1,0 +1,7 @@
+"""state has the following aspects: joint_angle1: jnp.ndarray
+    joint_angle2: jnp.ndarray
+    velocity_1: jnp.ndarray
+    velocity_2: jnp.ndarray
+    time: int"""
+def compute_reward(state) -> float:
+return reward
