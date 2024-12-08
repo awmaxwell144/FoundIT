@@ -23,7 +23,7 @@ gymnax-train/experiments/ppo/logs/
 
 
 # ignore the generated reward functions
-/envs/cartpole/reward.py
+*/reward.py
 
 experiments/
 
