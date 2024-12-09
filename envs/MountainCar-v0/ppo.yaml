@@ -36,5 +36,5 @@ log_config:
   model_type: "jax"
 
 device_config:
-  num_devices: 1
+  num_devices: 2
   device_type: "gpu"

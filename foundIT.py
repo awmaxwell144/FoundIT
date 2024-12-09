@@ -133,11 +133,6 @@ def main(env_name):
                 encountered_exception = True
                 exception = process_error(e.stderr)
 
-            # evaluate with provided task fitness function
-            if not encountered_exception:
-                eval = tff(reward_info)
-            else:
-                eval = 0
 
             # store run and model information
             reward_info = {
@@ -145,11 +140,19 @@ def main(env_name):
                 "reward_seq": reward_seq,
                 "final_reward": final_reward,
                 "duration": duration,
-                "eval": eval,
+                "eval": 0,
                 "state_seq": state_seq,
                 "final_state":final_state,
                 "exception": exception,
             }
+
+            # evaluate with provided task fitness function
+            if not encountered_exception:
+                eval = tff(reward_info)
+            else:
+                eval = 0
+
+            reward_info["eval"] = eval
 
             
             reward_log(reward_info["reward_function"])

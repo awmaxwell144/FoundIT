@@ -2,9 +2,10 @@ import gymnax
 import argparse
 import os
 from utils.helpers import  load_config
+from vis.visualizer import Visualizer
 from utils.run import rollout_episode, load_neural_network
-from animate import animate
-
+#from animate import animate, animate_frames
+from  utils.make import make
 ROOT_DIR = os.getcwd()
 
 def run(env_name):
@@ -16,7 +17,7 @@ def run(env_name):
     )
 
     # create environment and parameters using the config
-    env, env_params = gymnax.make(
+    env, env_params = make(
         configs.train_config.env_name,
         **configs.train_config.env_kwargs,
     )
@@ -40,7 +41,7 @@ def run_animate(env_name):
     )
 
     # create environment and parameters using the config
-    env, env_params = gymnax.make(
+    env, env_params = make(
         configs.train_config.env_name,
         **configs.train_config.env_kwargs,
     )
@@ -52,7 +53,10 @@ def run_animate(env_name):
         env, env_params, model, model_params
     )
 
-    animate(state_seq, f'output/{env_name}_test.mp4')
+    vis = Visualizer(env, env_params, state_seq, cum_rewards)
+    vis.animate(f"output/{env_name}.gif")
+
+    # animate(state_seq, f'output/{env_name}_test.mp4')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser() 

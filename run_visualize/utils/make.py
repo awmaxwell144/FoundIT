@@ -100,8 +100,3 @@ def make(env_id: str, **env_kwargs):
         env = pong.Pong(**env_kwargs)
     """
     
-
-envs = [
-    "CartPole-v1",
-    "Pendulum-v1"
-]
