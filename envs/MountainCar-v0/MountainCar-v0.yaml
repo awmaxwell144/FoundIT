@@ -1,5 +1,5 @@
 task: MountainCar-v0
 env_name: MountainCar-v0
 description: to accelerate the car to reach position=0 
-iterations: 3
-samples: 4
+iterations: 2
+samples: 2

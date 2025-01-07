@@ -4,6 +4,7 @@ import ollama
 import logging
 import argparse
 import subprocess
+from openai import OpenAI
 from utils.helpers import read_config, file_to_string, write_to_py, process_run, process_error
 from utils.setup import setup
 from utils.logs import all_log, reward_log
@@ -13,13 +14,18 @@ from generate_reward.tools.rewards import format_reward
 ROOT_DIR = os.getcwd()
 
 # Main
-def main(env_name):
+def main(env_name, withChat):
     logging.basicConfig(level = logging.INFO)
     
     # load config info
-    logging.debug(" Load config")
+    logging.debug("Load config")
     env_name, task_description, task, iterations, samples = read_config(env_name)
     reward_location = f'envs/{env_name}/reward.py'
+
+    if withChat:
+        client = OpenAI(
+            api_key=os.environ.get("OPENAI_API_KEY"),  # This is the default and can be omitted
+            )
 
     # setup
     setup(env_name)
@@ -71,8 +77,12 @@ def main(env_name):
             try:
                 logging.info(f' Generating reward number {num_samples+1}')
                 # generate response given messages
-                cur_response = ollama.chat(model = "llama3.1",
-                               messages = messages)['message']['content']
+                if not withChat:
+                    cur_response = ollama.chat(model = "llama3.1",
+                                messages = messages)['message']['content']
+                else:
+                    cur_response = client.chat.completions.create(messages = messages, model = "gpt-4")
+                    cur_response = cur_response.choices[0].message.content
                 
                 num_samples+=1
             except Exception as e:
@@ -177,8 +187,9 @@ def main(env_name):
 
             # if some execute
             else:
-                best_eval = 0
+                best_eval = -sys.float_info.max
                 best_reward = {}
+                logging.info(reward_info_all)
                 # choose the *best* reward function based on task fitness function output
                 for reward_info in reward_info_all:
                     if (reward_info["eval"] > best_eval):
@@ -208,6 +219,7 @@ def main(env_name):
     else:
         best_eval = 0
         best_reward = {}
+        logging.info(reward_info_all)
         # choose the *best* reward function based on task fitness function output
         for reward_info in reward_info_all:
             if (reward_info["eval"] > best_eval):
@@ -249,7 +261,14 @@ if __name__ == "__main__":
         "--env_name",
         type=str,
         default="CartPole-v1",
-        help="Environment name.",
+        help="Environment name."
     )
+    parser.add_argument(
+        "-c",
+        "--chat_gpt",
+        action="store_true", 
+        default = False
+    )
+
     args, _ = parser.parse_known_args()
-    main(args.env_name)
+    main(args.env_name, args.chat_gpt)

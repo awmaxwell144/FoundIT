@@ -60,10 +60,8 @@ def is_ollama_running(host="http://127.0.0.1", port=11434):
 
 def start_ollama_server(): 
     try:
-        logging.info("Starting ollama server")
         # Start Ollama server
         subprocess.Popen(["ollama", "serve"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        logging.info("Ollama server started.")
     except Exception as e:
         logging.warning(f"Failed to start Ollama server: {e}")
 
@@ -74,9 +72,7 @@ def check_and_pull_model(model_name="llama3.1"):
     try:
         # Get the list of available models
         models = subprocess.run(["ollama", "list"], capture_output=True, text=True, check=True)
-        if model_name in models.stdout:
-            logging.info(f"Model '{model_name}' is already downloaded.")
-        else:
+        if model_name not in models.stdout:
             logging.info(f"Model '{model_name}' is not available locally. Pulling it now...")
             subprocess.run(["ollama", "pull", model_name], check=True)
             logging.info(f"Model '{model_name}' has been successfully downloaded.")
