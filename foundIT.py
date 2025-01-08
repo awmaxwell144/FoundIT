@@ -189,13 +189,13 @@ def main(env_name, withChat):
             else:
                 best_eval = -sys.float_info.max
                 best_reward = {}
-                logging.info(reward_info_all)
                 # choose the *best* reward function based on task fitness function output
                 for reward_info in reward_info_all:
                     if (reward_info["eval"] > best_eval):
                         best_eval = reward_info["eval"]
                         # record stats about *best* reward
                         best_reward = reward_info
+
                 
                 # update the messages
                 feedback = policy_feedback.format(reward_function = best_reward["reward_function"],
@@ -217,9 +217,8 @@ def main(env_name, withChat):
         logging.warning(" The final reward function does not execute.")
         all_log(best_reward, "Final Reward Function (does not execute)", type = "reward_info")
     else:
-        best_eval = 0
+        best_eval = -sys.float_info.max
         best_reward = {}
-        logging.info(reward_info_all)
         # choose the *best* reward function based on task fitness function output
         for reward_info in reward_info_all:
             if (reward_info["eval"] > best_eval):

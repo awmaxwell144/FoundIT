@@ -2,14 +2,12 @@ import numpy as np
 import jax.numpy as jnp
 
 def compute_reward(state) -> float:
-    
-    # Reward reaching high velocities
-    reward = 10 * (jnp.abs(state.velocity) / jax.numpy.float32(1))
-    
-    # Add a bonus for moving forward
-    reward += 5 * ((state.position >= 0) - (state.position < 0))
-    
-    # Penalize being far away from the target position
-    reward -= 2 * abs(state.position)
-    
-    return jnp.clip(reward, -10.0, 10.0)
+    # define position goal
+    goal_position = 0.0
+    distance_to_goal = jnp.abs(state.position - goal_position) # absolute distance to goal
+    speed = jnp.abs(state.velocity) # absolute speed
+  
+    # higher speed and lesser distance to goal gets higher reward
+    reward = speed - distance_to_goal
+
+    return reward
