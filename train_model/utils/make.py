@@ -44,6 +44,12 @@ def make(env_id: str, **env_kwargs):
     elif env_id == "MountainCarCont-v0":
         cont_mountain_car = importlib.import_module("envs.MountainCarCont-v0.MountainCarCont-v0")
         env = cont_mountain_car.ContinuousMountainCar(**env_kwargs)
+    elif env_id == "Catch-bsuite":
+        catch = importlib.import_module("envs.Catch-bsuite.Catch-bsuite")
+        env = catch.Catch(**env_kwargs)
+    elif env_id == "FourRooms-misc":
+        fourRooms = importlib.import_module("envs.FourRooms-misc.FourRooms-misc")
+        env = fourRooms.FourRooms(**env_kwargs)
     else:
         raise ValueError(f"{env_id} is not in registered gymnax environments.")
 
