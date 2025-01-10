@@ -1,0 +1,5 @@
+"""state has the following aspects: pos: chex.Array
+    goal: chex.Array
+    time: int"""
+def compute_reward(state) -> float:
+return reward

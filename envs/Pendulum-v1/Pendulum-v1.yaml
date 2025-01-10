@@ -2,5 +2,5 @@
 task: Pendulum-v1
 env_name: Pendulum-v1
 description: to apply torque on the free end to swing it into an upright position, with its center of gravity right above the fixed point.
-iterations: 5
-samples: 10
+iterations: 3
+samples: 2

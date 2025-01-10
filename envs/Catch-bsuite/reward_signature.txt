@@ -1,0 +1,8 @@
+"""state has the following aspects: ball_x: chex.Array
+    ball_y: chex.Array
+    paddle_x: int
+    paddle_y: int
+    prev_done: bool
+    time: int"""
+def compute_reward(state) -> float:
+return reward

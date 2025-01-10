@@ -1,0 +1,5 @@
+task: FourRooms-misc
+env_name: FourRooms-misc
+description: Agent 'A' must reach goal 'G' in minimal steps
+iterations: 3
+samples: 5

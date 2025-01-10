@@ -1,20 +1,18 @@
 import numpy as np
 import jax.numpy as jnp
-def compute_reward(state):
-    # Reward for keeping pole upright and close to vertical position (theta)
-    theta_penalty = -abs(state.theta)  # Negative reward if pole is tilted
-    # Reward for keeping pole at rest (theta_dot)
-    velocity_penalty = -state.theta_dot**2  # Squared term to penalize faster movements
 
-    # Additive penalty for going over the limits on x and theta (as before)
-    x_limit_penalty = -abs(state.x)  # Negative reward if cart goes out of bounds
-    theta_limit_penalty = -abs(state.theta)  # Negative reward if pole is tilted beyond threshold
+def compute_reward(state) -> float:
+    x, x_dot, theta, theta_dot = state.x, state.x_dot, state.theta, state.theta_dot
 
-    # Combine all penalties with a positive weight to obtain final reward
-    reward = (
-        theta_penalty + velocity_penalty 
-        + x_limit_penalty * 0.1 
-        + theta_limit_penalty * 0.05
-    )
-    
+    # Encourage the pole to stay upright and the cart to stay in the center
+    theta_cost = (jnp.abs(theta) / jnp.pi) ** 2
+    x_cost = (jnp.abs(x) / 2.4) ** 2
+
+    # Penalize extreme velocities which may make the system unstable
+    x_dot_cost = jnp.clip(jnp.abs(x_dot) / 10., 0., 1.) 
+    theta_dot_cost = jnp.clip(jnp.abs(theta_dot) / 10., 0., 1.)
+
+    # Combine individual cost terms with respective weights (pole being upright has the highest priority)
+    reward = 1.0 - (0.5 * theta_cost + 0.3 * x_cost + 0.1 * x_dot_cost + 0.1 * theta_dot_cost)
+
     return reward

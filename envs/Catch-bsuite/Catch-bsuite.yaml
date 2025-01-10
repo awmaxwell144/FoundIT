@@ -1,0 +1,5 @@
+task: Catch-bsuite
+env_name: Catch-bsuite
+description: to position the letter P right below the letter B
+iterations: 1
+samples: 3

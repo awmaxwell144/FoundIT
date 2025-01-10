@@ -2,6 +2,8 @@ import os
 import yaml
 import re
 import ast
+import shutil
+import logging
 
 ROOT_DIR = os.getcwd()
 
@@ -92,20 +94,19 @@ def process_error(input_string):
         # If there are fewer than three occurrences, return an empty string
         return input_string
 
-
 def extract_states(state_seq):
     states = []
     # Use a regular expression to find all matches
     env_pattern = r"EnvState\((.*?\))\)"
     type_pattern = r"\s*([a-zA-Z]+)=Array"
-    value_pattern = r"=Array\((.*?),"
+    value_pattern = r"=Array\((\[[^\]]+\]|[^,]+),"
     matches = re.findall(env_pattern, state_seq)
     for match in matches:
         objs = re.findall(type_pattern, match)
         vals = re.findall(value_pattern, match)
         state = {}
         for i in range(len(objs)):
-            state[objs[i]] = float(vals[i])
+            state[objs[i]] = vals[i]
         states.append(state)
     return state_to_string(states)
 
@@ -132,4 +133,91 @@ def state_to_string (states):
 
     return output, final_state
 
+def copy_log(source_path, destination_path):
+     # Read the contents of the source file
+    with open(source_path, 'r') as source_file:
+        contents = source_file.read()
     
+    # Create the destination file if it does not exist and write the contents
+    with open(destination_path, 'w') as destination_file:
+        destination_file.write(contents)
+    
+def duplicate_gif(source_path, destination_path):
+    try:
+        shutil.copy(source_path, destination_path)
+    except:
+        logging.info("Failed to duplicate .gif")
+
+
+def rewrite_yaml(file_path, updates):
+    """
+    Rewrites a .yaml file with specified updates.
+    
+    :param file_path: Path to the .yaml file to be rewritten.
+    :param updates: A dictionary containing the updates to apply to the YAML file.
+    """
+    try:
+        # Read the existing .yaml file
+        with open(file_path, 'r') as file:
+            data = yaml.safe_load(file)
+        
+        # Update the YAML content with the provided updates
+        if not isinstance(data, dict):
+            raise ValueError("The YAML file content must be a dictionary.")
+        
+        data.update(updates)
+        
+        # Write the updated content back to the file
+        with open(file_path, 'w') as file:
+            yaml.dump(data, file, default_flow_style=False, sort_keys=False)
+        
+        print(f"Successfully updated {file_path}.")
+    
+    except Exception as e:
+        print(f"An error occurred while rewriting the .yaml file: {e}")
+
+import argparse
+if __name__ == "__main__":
+    # Initialize the argument parser
+    parser = argparse.ArgumentParser(description="Script to copy logs and duplicate GIFs.")
+    
+    # Add a command-line argument for 'num'
+    parser.add_argument(
+        "--env",
+        type=str,
+        required=True
+    )
+    parser.add_argument(
+        "--num", 
+        type=str, 
+        required=True
+    )
+    parser.add_argument(
+        "--cur",
+        type=str,
+        required=True
+    )
+    parser.add_argument(
+        "--samp", 
+        type=int, 
+        required=True
+    )
+    parser.add_argument(
+        "--iter", 
+        type=int, 
+        required=True
+    )
+    # Parse the arguments
+    args = parser.parse_args()
+    env_name = args.env
+    samp_iter = args.cur
+    num = args.num
+
+    updates_to_apply = {
+        "iterations": args.iter,
+        "samples": args.samp
+    }
+
+    copy_log(f'{ROOT_DIR}/output/all_logs.txt', f'{ROOT_DIR}/output/testing/{env_name}/{samp_iter}_log_{num}.txt')
+    duplicate_gif(f'{ROOT_DIR}/output/{env_name}.gif', f'{ROOT_DIR}/output/testing/{env_name}/{samp_iter}_anim_{num}.gif')
+    rewrite_yaml(f'{ROOT_DIR}/envs/{env_name}/{env_name}.yaml', updates_to_apply)
