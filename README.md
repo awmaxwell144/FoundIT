@@ -1,6 +1,6 @@
-# FoundIT:
+# FoundIT
 ## Contrastive Language-Image Pre-training to Automate Reward Function Evaluation in Large Language Model-Generated Reward Functions
-Repository **with** Contrastive Language-Image Pre-training (CLIP) for reward evaluation
+Repository **without** Contrastive Language-Image Pre-training (CLIP) for reward evaluation
 
 ### Instructions:
 Clone the repository:
@@ -49,4 +49,15 @@ Information about these environments can be found in the [gymnax](https://github
 The Chat-GPT flag specifies which LLM to use. If the `-c` flag is present, the process will use GPT-4. If it is not present, it will use Llama3
 
 
-Editing 
+Editing parameters:
+
+The number of iterations and the number of samples per iteration can be edited on a by-environment basis in the environment's config file.
+For example, the config file for the CartPole-v1 environment can be found at the fullowing path: 
+```
+envs/CartPole-v1/CartPole-v1.yaml
+```
+
+Sections of code or inspiration for this project come from the following sources:
+https://github.com/RobertTLange/gymnax/tree/main
+https://github.com/RobertTLange/gymnax-blines/tree/main
+https://github.com/eureka-research/Eureka
