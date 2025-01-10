@@ -1,27 +1,18 @@
 import numpy as np
 import jax.numpy as jnp
 
-def compute_reward(state):
+def compute_reward(state) -> float:
     x, x_dot, theta, theta_dot = state.x, state.x_dot, state.theta, state.theta_dot
 
-    # define the threshold levels
-    theta_threshold_radians = 12 * 2 * jnp.pi / 360
-    x_threshold = 2.4
+    # Encourage the pole to stay upright and the cart to stay in the center
+    theta_cost = (jnp.abs(theta) / jnp.pi) ** 2
+    x_cost = (jnp.abs(x) / 2.4) ** 2
 
-    failure_conditions = jnp.logical_or(jnp.logical_or(x < -x_threshold, x > x_threshold), 
-                                        jnp.logical_or(theta < -theta_threshold_radians, theta > theta_threshold_radians))
+    # Penalize extreme velocities which may make the system unstable
+    x_dot_cost = jnp.clip(jnp.abs(x_dot) / 10., 0., 1.) 
+    theta_dot_cost = jnp.clip(jnp.abs(theta_dot) / 10., 0., 1.)
 
-    # Reward for staying alive
-    alive_reward = 1.0
-
-    # Quadratic penalties
-    theta_penalty = -2.0 * jnp.square(theta)  # Increased from 1.0 to 2.0 to increase penalty
-    x_penalty = -0.5 * jnp.square(x)  # Increased from 0.1 to 0.5 to increase penalty
-    
-    # Penalty for velocity - we want the cart to stay still, not just upright
-    theta_dot_penalty = -0.2 * jnp.square(theta_dot)
-    x_dot_penalty = -0.1 * jnp.square(x_dot)
-
-    reward = jnp.where(failure_conditions, 0.0, alive_reward + theta_penalty + x_penalty + theta_dot_penalty + x_dot_penalty)
+    # Combine individual cost terms with respective weights (pole being upright has the highest priority)
+    reward = 1.0 - (0.5 * theta_cost + 0.3 * x_cost + 0.1 * x_dot_cost + 0.1 * theta_dot_cost)
 
     return reward

@@ -28,3 +28,5 @@ gymnax-train/experiments/ppo/logs/
 experiments/
 
 /evaluate/tff.py
+
+run.sh
